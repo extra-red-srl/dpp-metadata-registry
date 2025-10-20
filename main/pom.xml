@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>it.extrared</groupId>
+        <artifactId>dpp-metadata-registry-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>dpp-metadata-registry</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-api-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>postgres-openid</id>
+            <dependencies>
+                <dependency>
+                    <groupId>it.extrared</groupId>
+                    <artifactId>dpp-metadata-registry-api-rest</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>it.extrared</groupId>
+                    <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>it.extrared</groupId>
+                    <artifactId>dpp-metadata-registry-core</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>it.extrared</groupId>
+                    <artifactId>dpp-metadata-registry</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <quarkus.profile>pgsql-openid</quarkus.profile>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
