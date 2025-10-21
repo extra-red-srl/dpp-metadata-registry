@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/** PostgreSQL implementation of the {@link JsonSchemaDBRepository} */
 @ApplicationScoped
 public class PgSQLSchemaRepository implements JsonSchemaDBRepository {
 

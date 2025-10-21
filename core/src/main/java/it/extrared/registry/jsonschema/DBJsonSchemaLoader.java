@@ -21,6 +21,6 @@ public class DBJsonSchemaLoader extends AbstractJsonSchemaLoader {
 
     @Override
     public Integer priority() {
-        return 11;
+        return 99;
     }
 }

@@ -39,6 +39,6 @@ public class ClassPathJsonSchemaLoader extends AbstractJsonSchemaLoader {
 
     @Override
     public Integer priority() {
-        return 99;
+        return Integer.MAX_VALUE;
     }
 }

@@ -12,6 +12,10 @@ import jakarta.enterprise.inject.spi.CDI;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * Base interface for a {@link DPPMetadataEntry}. Define methods for the business logic code to
+ * interact with the underlying data source.
+ */
 public interface DPPMetadataRepository {
 
     Uni<DPPMetadataEntry> findByUpi(SqlConnection conn, String upi);

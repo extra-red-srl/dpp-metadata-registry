@@ -8,14 +8,15 @@ import it.extrared.registry.jsonschema.Schema;
 import it.extrared.registry.jsonschema.SchemaCache;
 import it.extrared.registry.metadata.DPPMetadataEntry;
 import it.extrared.registry.metadata.DPPMetadataRepository;
+import it.extrared.registry.utils.CommonUtils;
 import it.extrared.registry.utils.SQLClientUtils;
-import it.extrared.registry.utils.UUIDUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/** PostgreSQL implementation of the {@link DPPMetadataRepository} */
 @ApplicationScoped
 public class PgSQLMetadataRepository implements DPPMetadataRepository {
     @Inject MetadataRegistryConfig config;
@@ -95,7 +96,7 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
 
     @Override
     public Uni<DPPMetadataEntry> save(SqlConnection conn, DPPMetadataEntry metadata) {
-        metadata.setRegistryId(UUIDUtils.generateTimeBasedUUID());
+        metadata.setRegistryId(CommonUtils.generateTimeBasedUUID());
         metadata.setCreatedAt(LocalDateTime.now());
         metadata.setModifiedAt(LocalDateTime.now());
         Uni<RowSet<Row>> row =

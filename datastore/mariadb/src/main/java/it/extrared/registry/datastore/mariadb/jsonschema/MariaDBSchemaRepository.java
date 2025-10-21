@@ -16,6 +16,7 @@ import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/** MariaDB implementation of the {@link JsonSchemaDBRepository} */
 @ApplicationScoped
 public class MariaDBSchemaRepository implements JsonSchemaDBRepository {
 

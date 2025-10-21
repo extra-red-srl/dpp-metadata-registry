@@ -73,6 +73,6 @@ public class URIJsonSchemaLoader extends AbstractJsonSchemaLoader {
 
     @Override
     public Integer priority() {
-        return 88;
+        return 999;
     }
 }

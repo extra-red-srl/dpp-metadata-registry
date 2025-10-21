@@ -1,13 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "EU DPP Registry Metadata",
-  "description": "Schema for Digital Product Passport registration metadata in the EU Registry",
+  "title": "Fs Test DB EU DPP Registry Metadata",
+  "description": "Fs Test DB Schema for Digital Product Passport registration metadata in the EU Registry",
   "type": "object",
   "required": [
     "upi",
-    "reoId",
-    "liveURL",
-    "granularityLevel"
+    "reoId"
   ],
   "properties": {
     "upi": {
@@ -27,38 +25,6 @@
       "examples": [
         "LEI-529900T8BM49AURSDO55",
         "EORI-IT123456789"
-      ]
-    },
-    "facilitiesId": {
-      "type": "array",
-      "uniqueItems": true,
-      "minItems": 1,
-      "items": {
-        "type": "string"
-      },
-      "description": "Facility ID where the product is manufactured/assembled",
-      "maxLength": 250,
-      "examples": [
-        "GLN-5412345000013",
-        "FAC-MILANO-001"
-      ]
-    },
-    "liveURL": {
-      "type": "string",
-      "format": "uri",
-      "description": "Primary URL to retrieve the related DPP data",
-      "pattern": "^https://",
-      "examples": [
-        "https://dpp.example.com/product/12345"
-      ]
-    },
-    "backupURL": {
-      "type": "string",
-      "format": "uri",
-      "description": "Backup URL to retrieve the related DPP data",
-      "pattern": "^https://",
-      "examples": [
-        "https://backup-dpp.example.com/product/12345"
       ]
     },
     "commodityCode": {
@@ -95,18 +61,6 @@
           "PDF417"
         ]
       }
-    },
-    "granularityLevel": {
-      "type": "string",
-      "description": "The granularity level of the DPP",
-      "enum": [
-        "MODEL",
-        "BATCH",
-        "ITEM"
-      ],
-      "examples": [
-        "MODEL"
-      ]
     }
   }
 }

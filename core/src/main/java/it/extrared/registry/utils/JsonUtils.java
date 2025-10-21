@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.json.JsonObject;
 import jakarta.enterprise.inject.spi.CDI;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /** Some useful method to handle JSON data. */
@@ -28,5 +30,12 @@ public class JsonUtils {
 
     public static ObjectMapper objectMapper() {
         return CDI.current().select(ObjectMapper.class).get();
+    }
+
+    public static JsonNode loadClasspathJsonTemplate(String fileName) throws IOException {
+        try (InputStream is =
+                JsonUtils.class.getResourceAsStream("/json-schema/%s".formatted(fileName))) {
+            return objectMapper().readTree(is);
+        }
     }
 }
