@@ -1,11 +1,13 @@
 package it.extrared.registry.mocks;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.quarkus.arc.Unremovable;
 import io.smallrye.mutiny.Uni;
 import it.extrared.registry.jsonschema.JsonSchemaDBRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
+@Unremovable
 public class EmptyJsonSchemaDBRepository implements JsonSchemaDBRepository {
     @Override
     public Uni<JsonNode> getCurrentJsonSchema() {

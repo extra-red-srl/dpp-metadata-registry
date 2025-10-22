@@ -50,6 +50,7 @@ public class DPPMetadataService {
             SqlConnection conn, JsonNode metadata, List<String> autocompleteBy) {
         Uni<Void> autocompleted = applyAutoComplete(conn, metadata, autocompleteBy);
         DPPMetadataEntry incoming = new DPPMetadataEntry(metadata);
+        autocompleted = autocompleted.call(v -> validate(metadata));
         return autocompleted
                 .flatMap(
                         v ->
@@ -69,13 +70,12 @@ public class DPPMetadataService {
                         .merge(
                                 (ObjectNode) modified.getMetadata(),
                                 (ObjectNode) modifier.getMetadata()));
-        return validate(modified)
-                .flatMap(v -> updater.applyUpdate(config.updateStrategy(), conn, modified));
+        return updater.applyUpdate(config.updateStrategy(), conn, modified);
     }
 
     private Uni<? extends DPPMetadataEntry> doSave(
             DPPMetadataEntry incoming, SqlConnection connection) {
-        return validate(incoming).flatMap(v -> repository.save(connection, incoming));
+        return repository.save(connection, incoming);
     }
 
     private Uni<Void> applyAutoComplete(
@@ -85,6 +85,7 @@ public class DPPMetadataService {
                 && config.autocompletionEnabledFor().isPresent()) {
             List<Tuple2<String, Object>> filters =
                     autocompleteBy.stream()
+                            .filter(metadata::has)
                             .map(
                                     p ->
                                             Tuple2.of(
@@ -108,12 +109,12 @@ public class DPPMetadataService {
         }
     }
 
-    private Uni<Void> validate(DPPMetadataEntry metadata) {
+    private Uni<Void> validate(JsonNode metadata) {
         return schemaCache
                 .get()
                 .invoke(
                         s -> {
-                            Set<ValidationMessage> msgs = s.validateJson(metadata.getMetadata());
+                            Set<ValidationMessage> msgs = s.validateJson(metadata);
                             if (!msgs.isEmpty()) throw new SchemaValidationException(msgs);
                         })
                 .replaceWithVoid();

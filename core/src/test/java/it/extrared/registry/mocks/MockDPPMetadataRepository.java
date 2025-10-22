@@ -1,7 +1,7 @@
 package it.extrared.registry.mocks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.quarkus.test.Mock;
+import io.quarkus.arc.Unremovable;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple2;
 import io.smallrye.mutiny.unchecked.Unchecked;
@@ -9,11 +9,13 @@ import io.vertx.mutiny.sqlclient.SqlConnection;
 import it.extrared.registry.metadata.DPPMetadataEntry;
 import it.extrared.registry.metadata.DPPMetadataRepository;
 import it.extrared.registry.utils.CommonUtils;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 
-@Mock
+@ApplicationScoped
+@Unremovable
 public class MockDPPMetadataRepository implements DPPMetadataRepository {
     private static final String METADATA_1 =
                     """
@@ -75,6 +77,7 @@ public class MockDPPMetadataRepository implements DPPMetadataRepository {
 
     @Override
     public Uni<DPPMetadataEntry> save(SqlConnection conn, DPPMetadataEntry metadata) {
+        metadata.setRegistryId(CommonUtils.generateTimeBasedUUID());
         return Uni.createFrom().item(metadata);
     }
 

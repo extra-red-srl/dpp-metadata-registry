@@ -32,7 +32,7 @@ public class RegistryOpenApiFilter implements OASFilter {
         if (schemaCache.isResolvable()) {
             // edit the registry endpoint ref and build the schema out of the actual json schema in
             // use
-            PathItem pathItem = openAPI.getPaths().getPathItem("/registry");
+            PathItem pathItem = openAPI.getPaths().getPathItem("/registry/v1");
             RequestBody rb = pathItem.getPOST().getRequestBody();
             rb.setRef("#/components/schemas/Metadata");
             it.extrared.registry.jsonschema.Schema mySchema =
@@ -47,9 +47,9 @@ public class RegistryOpenApiFilter implements OASFilter {
             dppMetadata.setProperties(props);
         }
         // edit the schema of the JSON schema API
-        PathItem pathItem = openAPI.getPaths().getPathItem("/schema");
+        PathItem pathItem = openAPI.getPaths().getPathItem("/schema/v1");
         pathItem.getPOST().getRequestBody().setRef("#/components/schemas/JsonSchema");
-        pathItem = openAPI.getPaths().getPathItem("/schema/current");
+        pathItem = openAPI.getPaths().getPathItem("/schema/v1/current");
         pathItem.getGET()
                 .getResponses()
                 .getAPIResponse("200")

@@ -29,7 +29,7 @@ public class AutoCompleter {
             String k = keys.next();
             if (autocompleteFields.contains(k)) {
                 JsonNode val = base.get(k);
-                if (val.isNull() || val.isMissingNode()) base.set(k, overlay.get(k));
+                if (val == null || val.isNull() || val.isMissingNode()) base.set(k, overlay.get(k));
             }
         }
     }

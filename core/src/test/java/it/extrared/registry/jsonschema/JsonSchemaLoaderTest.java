@@ -7,6 +7,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.vertx.RunOnVertxContext;
 import io.quarkus.test.vertx.UniAsserter;
 import io.smallrye.mutiny.Uni;
+import it.extrared.registry.TestSupport;
 import it.extrared.registry.utils.JsonUtils;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @QuarkusTest
-public class JsonSchemaLoaderTest {
+public class JsonSchemaLoaderTest extends TestSupport {
 
     @Inject SchemaCache schemaCache;
     @Inject ObjectMapper objectMapper;

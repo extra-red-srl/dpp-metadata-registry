@@ -12,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Path("/registry")
+@Path("/registry/v1")
 public interface DPPMetadataResource {
 
     @POST

@@ -12,6 +12,26 @@
     <name>DPP metadata registry - Test Report</name>
 
     <dependencies>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-api-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>it.extrared</groupId>
+            <artifactId>dpp-metadata-registry-mariadb-datastore</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

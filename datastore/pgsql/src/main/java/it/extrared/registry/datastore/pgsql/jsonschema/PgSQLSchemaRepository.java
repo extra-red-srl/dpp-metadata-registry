@@ -2,17 +2,17 @@ package it.extrared.registry.datastore.pgsql.jsonschema;
 
 import static it.extrared.registry.utils.SQLClientUtils.getJsonNode;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.*;
 import it.extrared.registry.jsonschema.JsonSchemaDBRepository;
+import it.extrared.registry.utils.JsonUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /** PostgreSQL implementation of the {@link JsonSchemaDBRepository} */
 @ApplicationScoped
@@ -42,7 +42,7 @@ public class PgSQLSchemaRepository implements JsonSchemaDBRepository {
 
     private static final String INSERT_SCHEMA =
             """
-            INSERT INTO json_schema (data_schema,created_at)
+            INSERT INTO json_schemas (data_schema,created_at)
             VALUES($1,$2);
             """;
 
@@ -50,19 +50,18 @@ public class PgSQLSchemaRepository implements JsonSchemaDBRepository {
     public Uni<JsonNode> getCurrentJsonSchema() {
         Uni<RowSet<JsonObject>> result =
                 pool.query(SELECT_CURRENT).mapping(r -> r.getJsonObject(0)).execute();
-        return result.map(rs -> getJsonNode(objectMapper, rs.iterator()));
+        return result.map(Unchecked.function(rs -> getJsonNode(rs.iterator())));
     }
 
     @Override
     public Uni<Void> addSchema(JsonNode schema) {
-        Map<String, Object> jMap =
-                objectMapper.convertValue(schema, new TypeReference<Map<String, Object>>() {});
         return pool.withTransaction(
                         c ->
                                 pool.preparedQuery(INSERT_SCHEMA)
                                         .execute(
                                                 Tuple.of(
-                                                        new JsonObject(jMap), LocalDateTime.now())))
+                                                        JsonUtils.toVertxJson(schema),
+                                                        LocalDateTime.now())))
                 .replaceWithVoid();
     }
 

@@ -27,8 +27,7 @@ public class SchemaResourceImpl implements SchemaResource {
 
     @Override
     public Uni<RestResponse<Void>> removeCurrent() {
-        return service.removeLastSchema()
-                .map(RestResponse::accepted)
-                .invoke(r -> schemaCache.invalidate());
+        Uni<RestResponse<Void>> res = service.removeLastSchema().map(v -> RestResponse.noContent());
+        return res.invoke(r -> schemaCache.invalidate());
     }
 }
