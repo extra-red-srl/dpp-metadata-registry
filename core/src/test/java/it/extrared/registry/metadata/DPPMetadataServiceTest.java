@@ -1,0 +1,89 @@
+package it.extrared.registry.metadata;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.vertx.RunOnVertxContext;
+import io.quarkus.test.vertx.UniAsserter;
+import io.smallrye.mutiny.unchecked.Unchecked;
+import it.extrared.registry.TestSupport;
+import it.extrared.registry.exceptions.SchemaValidationException;
+import jakarta.inject.Inject;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+public class DPPMetadataServiceTest extends TestSupport {
+
+    private static final String METADATA =
+            """
+    {
+        "reoId":"12345",
+        "upi":"00001"
+    }
+    """;
+
+    private static final String METADATA_INVALID =
+            """
+    {
+        "reoId":"012345"
+    }
+    """;
+
+    private static final String METADATA_UPDATE =
+            """
+    {
+        "reoId":"6789",
+        "upi":"6789",
+        "commodityCode":"122267310"
+    }
+    """;
+
+    @Inject ObjectMapper om;
+    @Inject DPPMetadataService metadataService;
+
+    @Test
+    @RunOnVertxContext
+    public void testSaveWithAutocomplete(UniAsserter asserter) {
+        asserter.assertThat(
+                Unchecked.supplier(
+                        () ->
+                                metadataService.saveOrUpdate(
+                                        om.readTree(METADATA), List.of("reoId"))),
+                m -> {
+                    assertNotNull(m.getMetadata().get("commodityCode"));
+                    assertEquals(2, m.getMetadata().get("dataCarrierTypes").size());
+                });
+    }
+
+    @Test
+    @RunOnVertxContext
+    public void testValidationFailure(UniAsserter asserter) {
+        asserter.assertFailedWith(
+                Unchecked.supplier(
+                        () ->
+                                metadataService.saveOrUpdate(
+                                        om.readTree(METADATA_INVALID), List.of("reoId"))),
+                t -> {
+                    assertEquals(SchemaValidationException.class, t.getClass());
+                });
+    }
+
+    @Test
+    @RunOnVertxContext
+    public void testUpdateWithAutocomplete(UniAsserter asserter) throws JsonProcessingException {
+        JsonNode upd = om.readTree(METADATA_UPDATE);
+        asserter.assertThat(
+                () -> metadataService.saveOrUpdate(upd, List.of("reoId")),
+                m -> {
+                    assertEquals(
+                            upd.get("commodityCode").asText(),
+                            m.getMetadata().get("commodityCode").asText());
+                    assertEquals(2, m.getMetadata().get("dataCarrierTypes").size());
+                });
+    }
+}

@@ -1,0 +1,66 @@
+package it.extrared.registry.api.rest;
+
+import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.*;
+
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
+import io.restassured.http.ContentType;
+import it.extrared.registry.metadata.DPPMetadataEntry;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+
+@QuarkusTest
+@TestProfile(MetadataAppendUpdatePropertyProfile.class)
+public class DppMetadataResourceAppendTest {
+
+    private static final String METADATA_1 =
+            """
+            {
+                "reoId":"12345",
+                "upi":"555666",
+                "commodityCode":"122267310",
+                "dataCarrierTypes":["QR_CODE","DATA_MATRIX"]
+              }
+            """;
+
+    private static final String METADATA_UPD =
+            """
+            {
+                "reoId":"12345",
+                "upi":"555666",
+                "commodityCode":"233367221"
+              }
+            """;
+
+    @Test
+    public void testAddDppMetadataAndUpdate() {
+        DPPMetadataEntry metadata =
+                given().when()
+                        .body(METADATA_1)
+                        .contentType(ContentType.JSON)
+                        .post("/registry/v1")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .body()
+                        .as(DPPMetadataEntry.class);
+        assertNotNull(metadata);
+        assertNotNull(metadata.getRegistryId());
+        String registryId = metadata.getRegistryId();
+        metadata =
+                given().when()
+                        .request()
+                        .queryParam("autocompleteBy", List.of("reoId"))
+                        .body(METADATA_UPD)
+                        .contentType(ContentType.JSON)
+                        .post("/registry/v1")
+                        .then()
+                        .statusCode(201)
+                        .extract()
+                        .body()
+                        .as(DPPMetadataEntry.class);
+        assertEquals("233367221", metadata.getMetadata().get("commodityCode").asText());
+        assertNotEquals(registryId, metadata.getRegistryId());
+    }
+}

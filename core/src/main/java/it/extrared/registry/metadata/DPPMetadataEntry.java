@@ -1,5 +1,8 @@
 package it.extrared.registry.metadata;
 
+import static it.extrared.registry.utils.CommonUtils.DATE_TIME_FORMAT;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 
@@ -8,8 +11,10 @@ public class DPPMetadataEntry {
 
     private String registryId;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_FORMAT)
     private LocalDateTime createdAt;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_FORMAT)
     private LocalDateTime modifiedAt;
 
     private JsonNode metadata;

@@ -1,26 +1,34 @@
 package it.extrared.registry.datastore.pgsql.metadata;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.tuples.Tuple2;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.sqlclient.*;
 import it.extrared.registry.MetadataRegistryConfig;
 import it.extrared.registry.jsonschema.Schema;
 import it.extrared.registry.jsonschema.SchemaCache;
 import it.extrared.registry.metadata.DPPMetadataEntry;
 import it.extrared.registry.metadata.DPPMetadataRepository;
+import it.extrared.registry.utils.CommonUtils;
+import it.extrared.registry.utils.JsonUtils;
 import it.extrared.registry.utils.SQLClientUtils;
-import it.extrared.registry.utils.UUIDUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
+/** PostgreSQL implementation of the {@link DPPMetadataRepository} */
 @ApplicationScoped
 public class PgSQLMetadataRepository implements DPPMetadataRepository {
     @Inject MetadataRegistryConfig config;
 
     @Inject SchemaCache schemaCache;
+
+    private static final Function<Row, JsonNode> AS_JSON_META =
+            Unchecked.function(r -> JsonUtils.fromVertxJson(r.getJsonObject("metadata")));
 
     private static final String INSERT =
             """
@@ -43,7 +51,9 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
                 """
                         .formatted(config.upiFieldName());
         Uni<RowSet<DPPMetadataEntry>> rs =
-                conn.preparedQuery(sql).mapping(ROW_MAPPER).execute(Tuple.of(upi));
+                conn.preparedQuery(sql)
+                        .mapping(r -> ROW_MAPPER.apply(r, AS_JSON_META))
+                        .execute(Tuple.of(upi));
         return rs.map(SQLClientUtils::firstOrNull);
     }
 
@@ -62,8 +72,8 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
                         .flatMap(
                                 sf ->
                                         conn.preparedQuery(sql.formatted(sf))
-                                                .mapping(ROW_MAPPER)
-                                                .execute(Tuple.of(params)));
+                                                .mapping(r -> ROW_MAPPER.apply(r, AS_JSON_META))
+                                                .execute(Tuple.wrap(new ArrayList<>(params))));
         return rs.map(SQLClientUtils::firstOrNull);
     }
 
@@ -95,7 +105,7 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
 
     @Override
     public Uni<DPPMetadataEntry> save(SqlConnection conn, DPPMetadataEntry metadata) {
-        metadata.setRegistryId(UUIDUtils.generateTimeBasedUUID());
+        metadata.setRegistryId(CommonUtils.generateTimeBasedUUID());
         metadata.setCreatedAt(LocalDateTime.now());
         metadata.setModifiedAt(LocalDateTime.now());
         Uni<RowSet<Row>> row =
@@ -105,7 +115,7 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
                                         metadata.getRegistryId(),
                                         metadata.getCreatedAt(),
                                         metadata.getModifiedAt(),
-                                        metadata.getMetadata()));
+                                        JsonUtils.toVertxJson(metadata.getMetadata())));
         return row.map(r -> metadata);
     }
 
@@ -115,7 +125,11 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
         String upi = metadata.getMetadata().get(config.upiFieldName()).asText();
         Uni<RowSet<Row>> row =
                 con.preparedQuery(UPDATE.formatted(config.upiFieldName()))
-                        .execute(Tuple.of(metadata.getModifiedAt(), metadata.getMetadata(), upi));
+                        .execute(
+                                Tuple.of(
+                                        metadata.getModifiedAt(),
+                                        JsonUtils.toVertxJson(metadata.getMetadata()),
+                                        upi));
         return row.map(r -> metadata);
     }
 }

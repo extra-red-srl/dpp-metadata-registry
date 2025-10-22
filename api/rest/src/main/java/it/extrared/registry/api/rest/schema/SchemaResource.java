@@ -9,7 +9,7 @@ import jakarta.ws.rs.Path;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Path("/schema")
+@Path("/schema/v1")
 public interface SchemaResource {
 
     @POST

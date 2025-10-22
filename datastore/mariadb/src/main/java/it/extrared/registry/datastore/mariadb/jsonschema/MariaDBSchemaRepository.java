@@ -2,11 +2,12 @@ package it.extrared.registry.datastore.mariadb.jsonschema;
 
 import static it.extrared.registry.utils.SQLClientUtils.getJsonNode;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.utils.StringUtils;
 import io.smallrye.mutiny.Uni;
-import io.vertx.core.json.JsonObject;
+import io.smallrye.mutiny.unchecked.Unchecked;
 import io.vertx.mutiny.sqlclient.Pool;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
@@ -14,8 +15,8 @@ import it.extrared.registry.jsonschema.JsonSchemaDBRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDateTime;
-import java.util.Map;
 
+/** MariaDB implementation of the {@link JsonSchemaDBRepository} */
 @ApplicationScoped
 public class MariaDBSchemaRepository implements JsonSchemaDBRepository {
 
@@ -43,28 +44,36 @@ public class MariaDBSchemaRepository implements JsonSchemaDBRepository {
 
     private static final String INSERT_SCHEMA =
             """
-            INSERT INTO json_schema (data_schema,created_at)
-            VALUES($1,$2);
+            INSERT INTO json_schemas (data_schema,created_at)
+            VALUES(?,?);
             """;
 
     @Override
     public Uni<JsonNode> getCurrentJsonSchema() {
-        Uni<RowSet<JsonObject>> result =
-                pool.query(SELECT_CURRENT).mapping(r -> r.getJsonObject(0)).execute();
-        return result.map(rs -> getJsonNode(objectMapper, rs.iterator()));
+        Uni<RowSet<byte[]>> result =
+                pool.query(SELECT_CURRENT)
+                        .mapping(
+                                r -> {
+                                    String json = r.getString(0);
+                                    if (StringUtils.isNotBlank(json)) return json.getBytes();
+                                    return null;
+                                })
+                        .execute();
+        return result.map(Unchecked.function(rs -> getJsonNode(objectMapper, rs.iterator())));
     }
 
     @Override
     public Uni<Void> addSchema(JsonNode schema) {
-        Map<String, Object> jMap =
-                objectMapper.convertValue(schema, new TypeReference<Map<String, Object>>() {});
-        return pool.withTransaction(
-                        c ->
-                                pool.preparedQuery(INSERT_SCHEMA)
-                                        .execute(
-                                                Tuple.of(
-                                                        new JsonObject(jMap), LocalDateTime.now())))
-                .replaceWithVoid();
+        try {
+            String rawJson = objectMapper.writeValueAsString(schema);
+            return pool.withTransaction(
+                            c ->
+                                    pool.preparedQuery(INSERT_SCHEMA)
+                                            .execute(Tuple.of(rawJson, LocalDateTime.now())))
+                    .replaceWithVoid();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

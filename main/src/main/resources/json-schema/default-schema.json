@@ -95,18 +95,18 @@
           "PDF417"
         ]
       }
+    },
+    "granularityLevel": {
+      "type": "string",
+      "description": "The granularity level of the DPP",
+      "enum": [
+        "MODEL",
+        "BATCH",
+        "ITEM"
+      ],
+      "examples": [
+        "MODEL"
+      ]
     }
-  },
-  "granularityLevel": {
-    "type": "string",
-    "description": "The granularity level of the DPP",
-    "enum": [
-      "MODEL",
-      "BATCH",
-      "ITEM"
-    ],
-    "examples": [
-      "MODEL"
-    ]
   }
 }

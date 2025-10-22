@@ -6,6 +6,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.sqlclient.RowIterator;
 import io.vertx.mutiny.sqlclient.RowSet;
 import it.extrared.registry.metadata.DPPMetadataEntry;
+import java.io.IOException;
 import java.util.Iterator;
 
 /** Some useful methods for code using Reactive SQL client. */
@@ -28,8 +29,26 @@ public class SQLClientUtils {
      * @param rs the result set.
      * @return a {@link JsonNode} representing the JSON value.
      */
-    public static JsonNode getJsonNode(ObjectMapper objectMapper, Iterator<JsonObject> rs) {
-        if (rs.hasNext()) return objectMapper.convertValue(rs.next().getMap(), JsonNode.class);
+    public static JsonNode getJsonNode(ObjectMapper objectMapper, Iterator<byte[]> rs)
+            throws IOException {
+        if (rs.hasNext()) {
+            byte[] next = rs.next();
+            if (next != null) return objectMapper.readTree(next);
+        }
+        return null;
+    }
+
+    /**
+     * Gets a JSON value from the iterator argument if any or returns null.
+     *
+     * @param rs the result set.
+     * @return a {@link JsonNode} representing the JSON value.
+     */
+    public static JsonNode getJsonNode(Iterator<JsonObject> rs) throws IOException {
+        if (rs.hasNext()) {
+            JsonObject jo = rs.next();
+            if (jo != null) return JsonUtils.fromVertxJson(jo);
+        }
         return null;
     }
 }

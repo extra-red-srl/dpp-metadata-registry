@@ -53,16 +53,17 @@ public class Schema {
     public String getPropertyType(String propertyName) {
         JsonNode node = schema.getSchemaNode().get(PROPERTIES_KEY).get(propertyName);
         if (nodeIsNotNull(node)) {
-            if (node.isArray()) {
-                ArrayNode arrayNode = (ArrayNode) node;
+            JsonNode type = node.get(TYPE_KEY);
+            if (nodeIsNotNull(type) && type.isTextual()) {
+                return type.asText();
+            } else if (type.isArray()) {
+                ArrayNode arrayNode = (ArrayNode) type;
                 for (int i = 0; i < arrayNode.size(); i++) {
-                    JsonNode type = arrayNode.get(i);
+                    type = arrayNode.get(i);
                     String strType = type.asText();
                     if (!strType.equals("null")) return strType;
                 }
             }
-            JsonNode type = node.get(TYPE_KEY);
-            if (nodeIsNotNull(type) && type.isTextual()) return type.asText();
         }
         return null;
     }
