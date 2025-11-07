@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025-2026 ExtraRed
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package it.extrared.registry.api.rest.metadata;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,10 +27,9 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.jboss.resteasy.reactive.RestResponse;
 
-@Path("/registry/v1")
+@Path("/metadata/v1")
 public interface DPPMetadataResource {
 
-    @POST
     @Operation(
             summary = "Add DPP metadata",
             description =
@@ -38,6 +52,7 @@ public interface DPPMetadataResource {
                     equal to the corresponding ones in the first found metadata with same reoId.
                     """,
             in = ParameterIn.PATH)
+    @POST
     Uni<RestResponse<DPPMetadataEntry>> addDPPMetadata(
             @RestQuery List<String> autocompleteBy, JsonNode jsonNode);
 }

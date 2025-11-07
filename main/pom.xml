@@ -19,11 +19,6 @@
         </dependency>
         <dependency>
             <groupId>it.extrared</groupId>
-            <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>it.extrared</groupId>
             <artifactId>dpp-metadata-registry-core</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,41 +46,20 @@
 
     <profiles>
         <profile>
-            <id>postgres-openid</id>
+            <id>pgsql-oidc</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <quarkus.profile>pgsql,oidc</quarkus.profile>
+            </properties>
             <dependencies>
-                <dependency>
-                    <groupId>it.extrared</groupId>
-                    <artifactId>dpp-metadata-registry-api-rest</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
                 <dependency>
                     <groupId>it.extrared</groupId>
                     <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
                     <version>${project.version}</version>
                 </dependency>
-                <dependency>
-                    <groupId>it.extrared</groupId>
-                    <artifactId>dpp-metadata-registry-core</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>it.extrared</groupId>
-                    <artifactId>dpp-metadata-registry</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
             </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <quarkus.profile>pgsql-openid</quarkus.profile>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
