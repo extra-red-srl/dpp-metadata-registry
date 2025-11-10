@@ -111,8 +111,6 @@ public class MariaDBMetadataRepository implements DPPMetadataRepository {
     public Uni<DPPMetadataEntry> save(SqlConnection conn, DPPMetadataEntry metadata) {
         try {
             metadata.setRegistryId(CommonUtils.generateTimeBasedUUID());
-            metadata.setCreatedAt(LocalDateTime.now());
-            metadata.setModifiedAt(LocalDateTime.now());
             Uni<RowSet<Row>> row =
                     conn.preparedQuery(INSERT)
                             .execute(

@@ -29,6 +29,8 @@ import it.extrared.registry.jsonschema.SchemaCache;
 import it.extrared.registry.metadata.update.DPPMetadataUpdater;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -58,14 +60,38 @@ public class DPPMetadataService {
      * @return the saved/updated {@link DPPMetadataEntry}.
      */
     public Uni<DPPMetadataEntry> saveOrUpdate(JsonNode metadata, List<String> autocompleteBy) {
-        return pool.withTransaction(c -> saveOrUpdateInternal(c, metadata, autocompleteBy));
+        return pool.withTransaction(
+                c ->
+                        validateUpi(metadata)
+                                .flatMap(v -> saveOrUpdateInternal(c, metadata, autocompleteBy)));
+    }
+
+    private Uni<Void> validateUpi(JsonNode metadata) {
+        return Uni.createFrom()
+                .voidItem()
+                .invoke(
+                        v -> {
+                            if (!metadata.has(config.upiFieldName()))
+                                throw new SchemaValidationException(
+                                        Set.of(
+                                                ValidationMessage.builder()
+                                                        .message(
+                                                                "DPP metadata must declare a %s field"
+                                                                        .formatted(
+                                                                                config
+                                                                                        .upiFieldName()))
+                                                        .build()));
+                        });
     }
 
     private Uni<DPPMetadataEntry> saveOrUpdateInternal(
             SqlConnection conn, JsonNode metadata, List<String> autocompleteBy) {
-        Uni<Void> autocompleted = applyAutoComplete(conn, metadata, autocompleteBy);
+        Uni<Void> autocompleted =
+                applyAutoComplete(
+                        conn,
+                        metadata,
+                        autocompleteBy != null ? new ArrayList<>(autocompleteBy) : null);
         DPPMetadataEntry incoming = new DPPMetadataEntry(metadata);
-        autocompleted = autocompleted.call(v -> validate(metadata));
         return autocompleted
                 .flatMap(
                         v ->
@@ -80,17 +106,24 @@ public class DPPMetadataService {
 
     private Uni<? extends DPPMetadataEntry> doUpdate(
             DPPMetadataEntry modifier, DPPMetadataEntry modified, SqlConnection conn) {
+        modified.setModifiedAt(LocalDateTime.now());
         modified.setMetadata(
                 new JsonMerger()
                         .merge(
                                 (ObjectNode) modified.getMetadata(),
                                 (ObjectNode) modifier.getMetadata()));
-        return updater.applyUpdate(config.updateStrategy(), conn, modified);
+        Uni<Void> validate = validate(modified.getMetadata());
+        Uni<? extends DPPMetadataEntry> res =
+                updater.applyUpdate(config.updateStrategy(), conn, modified);
+        return validate.flatMap(v -> res);
     }
 
     private Uni<? extends DPPMetadataEntry> doSave(
             DPPMetadataEntry incoming, SqlConnection connection) {
-        return repository.save(connection, incoming);
+        incoming.setCreatedAt(LocalDateTime.now());
+        Uni<Void> validate = validate(incoming.getMetadata());
+        Uni<? extends DPPMetadataEntry> res = repository.save(connection, incoming);
+        return validate.flatMap(v -> res);
     }
 
     private Uni<Void> applyAutoComplete(
@@ -98,6 +131,8 @@ public class DPPMetadataService {
         if (autocompleteBy != null
                 && !autocompleteBy.isEmpty()
                 && config.autocompletionEnabledFor().isPresent()) {
+            if (!autocompleteBy.contains(config.reoidFieldName()))
+                autocompleteBy.add(config.reoidFieldName());
             List<Tuple2<String, Object>> filters =
                     autocompleteBy.stream()
                             .filter(metadata::has)

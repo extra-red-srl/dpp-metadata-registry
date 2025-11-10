@@ -49,7 +49,7 @@ public class JsonSchemaLoaderTest extends TestSupport {
         Mockito.when(repository.getCurrentJsonSchema()).thenReturn(Uni.createFrom().nullItem());
         JsonNode test =
                 objectMapper.readTree(
-                        getClass().getResourceAsStream("/json-schema/default-schema.json"));
+                        getClass().getResourceAsStream("/json-schema/core-default-schema.json"));
         asserter.assertEquals(() -> schemaCache.get().map(Schema::getSchema), test);
     }
 

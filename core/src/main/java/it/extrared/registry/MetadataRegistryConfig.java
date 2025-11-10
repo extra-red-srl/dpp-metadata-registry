@@ -33,6 +33,12 @@ import org.eclipse.microprofile.config.spi.Converter;
 public interface MetadataRegistryConfig {
 
     /**
+     * @return the default template name in the classpath.
+     */
+    @WithDefault("default-schema.json")
+    String defaultTemplateName();
+
+    /**
      * @return list of JSON fields in a DPP metadata payload for which autocomplete should be
      *     enabled.
      */
@@ -47,10 +53,17 @@ public interface MetadataRegistryConfig {
     UpdateType updateStrategy();
 
     /**
-     * @return the field name of the unique product identifier in the JSON.
+     * @return the field name of the unique product identifier in the JSON. Default is upi
      */
     @WithDefault("upi")
     String upiFieldName();
+
+    /**
+     * @return the field name of the responsible economic operator identifier in the JSON. Default
+     *     is reoId.
+     */
+    @WithDefault("reoId")
+    String reoidFieldName();
 
     /**
      * @return comma separated list of mappings between external IdP roles and internal roles (see

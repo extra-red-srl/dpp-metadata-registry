@@ -46,7 +46,7 @@ public interface DPPMetadataRepository {
                         metadata.setRegistryId(r.getString("registry_id"));
                         metadata.setMetadata(f.apply(r));
                         metadata.setCreatedAt(r.getLocalDateTime("created_at"));
-                        metadata.setCreatedAt(r.getLocalDateTime("modified_at"));
+                        metadata.setModifiedAt(r.getLocalDateTime("modified_at"));
                         return metadata;
                     });
 }

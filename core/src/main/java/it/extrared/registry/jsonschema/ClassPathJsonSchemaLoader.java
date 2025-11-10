@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
+import it.extrared.registry.MetadataRegistryConfig;
 import it.extrared.registry.exceptions.JsonSchemaException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 @ApplicationScoped
 public class ClassPathJsonSchemaLoader extends AbstractJsonSchemaLoader {
 
+    @Inject MetadataRegistryConfig config;
     @Inject ObjectMapper objectMapper;
 
     @Override
@@ -44,7 +46,10 @@ public class ClassPathJsonSchemaLoader extends AbstractJsonSchemaLoader {
     }
 
     private JsonNode readFromClassPath() {
-        try (InputStream is = getClass().getResourceAsStream("/json-schema/default-schema.json")) {
+        try (InputStream is =
+                getClass()
+                        .getResourceAsStream(
+                                "/json-schema/%s".formatted(config.defaultTemplateName()))) {
             return objectMapper.readTree(is);
         } catch (IOException e) {
             throw new JsonSchemaException(

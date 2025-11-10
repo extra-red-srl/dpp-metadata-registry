@@ -49,6 +49,13 @@ public class DPPMetadataServiceTest extends TestSupport {
     }
     """;
 
+    private static final String METADATA_INVALID_2 =
+            """
+    {
+        "upi":"012345"
+    }
+    """;
+
     private static final String METADATA_UPDATE =
             """
     {
@@ -83,6 +90,18 @@ public class DPPMetadataServiceTest extends TestSupport {
                         () ->
                                 metadataService.saveOrUpdate(
                                         om.readTree(METADATA_INVALID), List.of("reoId"))),
+                t -> {
+                    assertEquals(SchemaValidationException.class, t.getClass());
+                });
+    }
+
+    @RunOnVertxContext
+    public void testValidationFailure2(UniAsserter asserter) {
+        asserter.assertFailedWith(
+                Unchecked.supplier(
+                        () ->
+                                metadataService.saveOrUpdate(
+                                        om.readTree(METADATA_INVALID_2), List.of("reoId"))),
                 t -> {
                     assertEquals(SchemaValidationException.class, t.getClass());
                 });

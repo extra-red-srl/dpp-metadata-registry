@@ -7,6 +7,9 @@
     "upi",
     "reoId",
     "liveURL",
+    "backupURL",
+    "commodityCode",
+    "dataCarrierTypes",
     "granularityLevel"
   ],
   "properties": {

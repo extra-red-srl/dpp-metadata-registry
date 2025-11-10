@@ -100,6 +100,7 @@ public class Schema {
         verifyPropertiesTypes(messages, properties);
         verifyAutocompleteEnabledFor(messages, properties);
         verifyUpi(messages, properties);
+        verifyReoId(messages, properties);
 
         return messages;
     }
@@ -118,6 +119,19 @@ public class Schema {
                         });
         if (!invalidProperties.isEmpty())
             messages.add("Invalid property types found: " + String.join(", ", invalidProperties));
+    }
+
+    private void verifyReoId(List<String> messages, JsonNode properties) {
+        JsonNode reoId = properties.get(config.reoidFieldName());
+        if (!nodeIsNotNull(reoId))
+            messages.add(
+                    "Reo ID property with name %s missing from json schema"
+                            .formatted(config.reoidFieldName()));
+        JsonNode type = reoId.get(TYPE_KEY);
+        if (!nodeIsNotNull(type) && type.isTextual() && !"string".equals(type.asText()))
+            messages.add(
+                    "Reo ID property with name %s should be of type string but is defined as type %s"
+                            .formatted(config.reoidFieldName(), type.asText()));
     }
 
     private void verifyUpi(List<String> messages, JsonNode properties) {

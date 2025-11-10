@@ -80,23 +80,23 @@ See the [Docker](#docker-compose) and [Docker Compose](#docker-compose) examples
 
 #### Database Configuration
 
-| Variable                | Environment Variable    | Description          | Default |
-|-------------------------|-------------------------|----------------------|---------|
-| `registry.db-host`      | `REGISTRY_DB_HOST`      | Database hostname    | -       |
-| `registry.db-port`      | `REGISTRY_DB_PORT`      | Database port        | -       |
-| `registry.db-name`      | `REGISTRY_DB_NAME`      | Database name        | -       |
-| `registry.db-username`  | `REGISTRY_DB_USERNAME`  | Database username    | -       |
-| `registry.db-password`  | `REGISTRY_DB_PASSWORD`  | Database password    | -       |
-| `registry.db.pool-size` | `REGISTRY_DB_POOL_SIZE` | Connection pool size | `16`    |
+| Variable                        | Environment Variable            | Description          | Default |
+|---------------------------------|---------------------------------|----------------------|---------|
+| `registry-storage.db-host`      | `REGISTRY_STORAGE_DB_HOST`      | Database hostname    | -       |
+| `registry-storage.db-port`      | `REGISTRY_STORAGE_DB_PORT`      | Database port        | -       |
+| `registry-storage.db-name`      | `REGISTRY_STORAGE_DB_NAME`      | Database name        | -       |
+| `registry-storage.db-username`  | `REGISTRY_STORAGE_DB_USERNAME`  | Database username    | -       |
+| `registry-storage.db-password`  | `REGISTRY_STORAGE_DB_PASSWORD`  | Database password    | -       |
+| `registry-storage.db.pool-size` | `REGISTRY_STORAGE_DB_POOL_SIZE` | Connection pool size | `16`    |
 
 #### OpenID Connect Configuration
 
-| Variable                        | Environment Variable            | Description                                         | Default |
-|---------------------------------|---------------------------------|-----------------------------------------------------|---------|
-| `registry.oidc.base-url`        | `REGISTRY_OIDC_BASE_URL`        | OIDC server base URL                                | -       |
-| `registry.oidc.client-id`       | `REGISTRY_OIDC_CLIENT_ID`       | OIDC client ID                                      | -       |
-| `registry.oidc.secret`          | `REGISTRY_OIDC_SECRET`          | OIDC client secret                                  | -       |
-| `registry.oidc.role-claim-path` | `REGISTRY_OIDC_ROLE_CLAIM_PATH` | Comma-separated JWT claim paths for role extraction | `group` |
+| Variable                             | Environment Variable                 | Description                                         | Default |
+|--------------------------------------|--------------------------------------|-----------------------------------------------------|---------|
+| `registry-auth.oidc.base-url`        | `REGISTRY_AUTH_OIDC_BASE_URL`        | OIDC server base URL                                | -       |
+| `registry-auth.oidc.client-id`       | `REGISTRY_AUTH_OIDC_CLIENT_ID`       | OIDC client ID                                      | -       |
+| `registry-auth.oidc.secret`          | `REGISTRY_AUTH_OIDC_SECRET`          | OIDC client secret                                  | -       |
+| `registry-auth.oidc.role-claim-path` | `REGISTRY_AUTH_OIDC_ROLE_CLAIM_PATH` | Comma-separated JWT claim paths for role extraction | `group` |
 
 #### Application Configuration
 
@@ -104,7 +104,8 @@ See the [Docker](#docker-compose) and [Docker Compose](#docker-compose) examples
 |---------------------------------------|---------------------------------|-----------------------------------------------------------------------|---------|
 | `registry.autocompletion-enabled-for` | `AUTOCOMPLETION_ENABLED_FOR`    | Comma-separated list of fields eligible for autocompletion            | -       |
 | `registry.update-strategy`            | `REGISTRY_UPDATE_STRATEGY`      | Strategy for handling duplicate UPI: `UPDATE` or `APPEND_WITH_NEW_ID` | -       |
-| `registry.upi-field-name`             | `REGISTRY_UPI_FIELD_NAME`       | Custom name for the UPI field in the schema                           | `upi`   |
+| `registry.upi-field-name`             | `REGISTRY_UPI_FIELD_NAME`       | Custom name for the unique product identifier field in the schema     | `upi`   |
+| `registry.reoid-field-name`           | `REGISTRY_REOID_FIELD_NAME`     | Custom name for the responsible economic operator field in the schema | `reoId` |
 | `registry.role-mappings`              | `REGISTRY_ROLE_MAPPINGS`        | Comma-separated mappings between external and internal roles          | -       |
 | `registry.json-schema-location`       | `REGISTRY_JSON_SCHEMA_LOCATION` | Location of custom JSON schema (URL, file URI, or absolute path)      | -       |
 
@@ -305,6 +306,9 @@ The application ships with a comprehensive default schema that includes:
     "upi",
     "reoId",
     "liveURL",
+    "backupURL",
+    "commodityCode",
+    "dataCarrierTypes",
     "granularityLevel"
   ],
   "properties": {
@@ -454,8 +458,8 @@ The application exposes two main API groups:
 To obtain the OpenAPI document start the application and issue a `GET` request targeting the path `/q/openapi`. Use the `Accept`
 header to negotiate the media type (either `JSON` or `YAML`). The endpoint will always return an OpenAPI document aligned with
 the current JSON schema in use by the application.
-### Metadata Endpoints
 
+### Metadata Endpoints
 #### POST /metadata/v1
 
 Creates or updates a metadata entry in the registry.

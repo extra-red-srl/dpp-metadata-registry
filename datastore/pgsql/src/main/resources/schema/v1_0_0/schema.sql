@@ -1,7 +1,7 @@
 CREATE SEQUENCE IF NOT EXISTS dpp_metadata_seq;
 
 CREATE TABLE IF NOT EXISTS dpp_metadata (
-id BIGINT PRIMARY KEY DEFAULT nextval('ddp_metadata_seq'),
+id BIGINT PRIMARY KEY DEFAULT nextval('dpp_metadata_seq'),
 registry_id VARCHAR(36) NOT NULL,
 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

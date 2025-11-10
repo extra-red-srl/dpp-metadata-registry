@@ -55,8 +55,29 @@
             </properties>
             <dependencies>
                 <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-oidc</artifactId>
+                </dependency>
+                <dependency>
                     <groupId>it.extrared</groupId>
                     <artifactId>dpp-metadata-registry-pgsql-datastore</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>mariadb-oidc</id>
+            <properties>
+                <quarkus.profile>mariadb,oidc</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-oidc</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>it.extrared</groupId>
+                    <artifactId>dpp-metadata-registry-mariadb-datastore</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>

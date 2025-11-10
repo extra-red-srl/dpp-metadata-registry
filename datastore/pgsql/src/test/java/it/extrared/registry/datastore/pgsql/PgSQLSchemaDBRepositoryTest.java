@@ -34,7 +34,7 @@ public class PgSQLSchemaDBRepositoryTest {
     @RunOnVertxContext
     public void testAddNewGetRemoveGet(UniAsserter asserter) throws IOException {
         JsonNode schema = JsonUtils.loadClasspathJsonTemplate("db-schema.json");
-        JsonNode current = JsonUtils.loadClasspathJsonTemplate("default-schema.json");
+        JsonNode current = JsonUtils.loadClasspathJsonTemplate("pgsql-default-schema.json");
         asserter.assertNull(() -> schemaDBRepository.addSchema(schema));
         asserter.assertEquals(() -> schemaDBRepository.getCurrentJsonSchema(), schema);
         asserter.assertNull(() -> schemaDBRepository.removeLastSchema());

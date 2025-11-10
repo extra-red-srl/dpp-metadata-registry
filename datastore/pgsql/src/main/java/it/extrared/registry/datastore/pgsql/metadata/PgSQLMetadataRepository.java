@@ -121,8 +121,6 @@ public class PgSQLMetadataRepository implements DPPMetadataRepository {
     @Override
     public Uni<DPPMetadataEntry> save(SqlConnection conn, DPPMetadataEntry metadata) {
         metadata.setRegistryId(CommonUtils.generateTimeBasedUUID());
-        metadata.setCreatedAt(LocalDateTime.now());
-        metadata.setModifiedAt(LocalDateTime.now());
         Uni<RowSet<Row>> row =
                 conn.preparedQuery(INSERT)
                         .execute(
