@@ -21,7 +21,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.jvm -t quarkus/dpp-metadata-registry-jvm .
+# docker build -f main/src/main/docker/Dockerfile.jvm -t quarkus/dpp-metadata-registry-jvm .
 #
 # Then run the container using:
 #
