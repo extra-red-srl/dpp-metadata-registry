@@ -39,11 +39,11 @@ package -Dnative
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-micro -t quarkus/automat-battery-query .
+# docker build -f main/src/main/docker/Dockerfile.native-micro -t quarkus/automat-battery-query .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/automat-battery-query
+# docker run -i --rm -p 8080:8080 quarkus/dpp-metadata-registry
 #
 ###
 FROM quay.io/quarkus/quarkus-micro-image:2.0
