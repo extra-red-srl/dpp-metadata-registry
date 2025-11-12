@@ -416,10 +416,10 @@ The application ships with a comprehensive default schema that includes:
       "uniqueItems": true,
       "minItems": 1,
       "items": {
-        "type": "string"
+        "type": "string",
+        "maxLength": 250
       },
       "description": "Facility ID where the product is manufactured/assembled",
-      "maxLength": 250,
       "examples": [
         "GLN-5412345000013",
         "FAC-MILANO-001"
@@ -444,10 +444,7 @@ The application ships with a comprehensive default schema that includes:
       ]
     },
     "commodityCode": {
-      "type": [
-        "string",
-        "null"
-      ],
+      "type": "string",
       "description": "The commodity code of the product (e.g., HS Code, TARIC)",
       "pattern": "^[0-9]{4,10}$",
       "examples": [
@@ -489,6 +486,24 @@ The application ships with a comprehensive default schema that includes:
       "examples": [
         "MODEL"
       ]
+    },
+    "deactivated": {
+      "type": ["boolean", "null"],
+      "description": "True if the DPP has been deactivated, false/null otherwise. The property must be present if the granularityLevel equals = ITEM",
+      "examples": [true, false, null]
+    }
+  },
+  "if": {
+    "properties": {
+      "granularityLevel": { "const": "ITEM" }
+    }
+  },
+  "then": {
+    "required": ["deactivated"]
+  },
+  "else": {
+    "not": {
+      "required": ["deactivated"]
     }
   }
 }
@@ -566,9 +581,11 @@ Content-Type: application/json
   "reoId": "LEI-529900T8BM49AURSDO55",
   "upi": "urn:epc:id:sgtin:0614141.107346.2017",
   "liveURL": "https://dpp.example.com/product/12345",
+  "backupURL": "https://dpp.example.com/product/backup/12345",
   "commodityCode": "85176200",
   "dataCarrierTypes": ["QR_CODE", "RFID"],
-  "granularityLevel": "ITEM"
+  "granularityLevel": "ITEM",
+  "deactivated": false
 }
 ```
 
@@ -581,9 +598,11 @@ Content-Type: application/json
     "reoId": "LEI-529900T8BM49AURSDO55",
     "upi": "urn:epc:id:sgtin:0614141.107346.2017",
     "liveURL": "https://dpp.example.com/product/12345",
+    "backupURL": "https://dpp.example.com/product/backup/12345",
     "commodityCode": "85176200",
     "dataCarrierTypes": ["QR_CODE", "RFID"],
-    "granularityLevel": "ITEM"
+    "granularityLevel": "ITEM",
+    "deactivated": false
   }
 }
 ```
